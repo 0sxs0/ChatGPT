@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>TJ-Apsolut ChatGPT</title>
+  <link rel="icon" href="icon-1.png">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- favicon icon -->
+  <link rel="icon" href="favicon.ico">
+  <!-- All CSS Files Here -->
+  <link rel="stylesheet" href="style.css">
+  <script src="modernizr-2.8.3.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* 网页端样式 */
+    @media screen and (min-width: 768px) {
+
+      textarea#message-input ,textarea#message-list{
+        resize: none;
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", 微软雅黑, Arial, sans-serif;
+        font-size: 1.2em;
+        border: 0;
+        background: #222;
+        color: #fff;
+        opacity: .9;
+      }
+
+      #message-list {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    /* 手机端样式 */
+    @media screen and (max-width: 767px) {
+      textarea#message-input, textarea#message-list {
+        white-space: pre-wrap;
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", 微软雅黑, Arial, sans-serif;
+        font-size: 1em;
+        border: 0;
+        background: #222;
+        color: #fff;
+        opacity: .9;
+      }
+
+      #message-list {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+<header id="sticky-header">
+  <div>
+    <h1><a href="index.html">TJ-Apsolut ChatGPT</a></h1>
+  </div>
+</header>
+<div class="basic-portfolio-area ptb-10">
+
+  <div class="filter-menu text-center mb-40">
+    <p>
+      ChatGPT中文版、免账号、免登录、免注册...<br>
+      你可以在此与 Ai 进行高质量对话，譬如：解题，翻译，写文案，写论文，编程等...<br>
+<!--
+      请不要和 Ai 说废话，浪费钱，你想叽叽喳喳，请找你的小闺蜜...<br>
+-->
+      该API剩余查询次数：<a id="number"></a><br>
+      在线人数：<a id="online"></a>人，最多同时在线50人<br>
+      窗口剩余使用时间：<a id="countdown"></a>
+    </p>
+  </div>
+
+  <textarea id="message-input" placeholder="请在此输入对话" rows="4"></textarea>
+
+  <textarea id="message-list" placeholder="ChatGPT最近很拥堵，若长时间没回复，可多点几次回答按钮。若始终没有回复，说明站长账号里没钱了..." rows="20" disabled></textarea>
+
+
+</div>
+</body>
+
+<script>
+  const messageList = document.getElementById('message-list');
+  var globalMember = 1;
+
+  var DetectionPage = 0;
+  if (performance.navigation.type === 0) {
+    DetectionPage = 0;
+  }
+  if (performance.navigation.type === 1) {
+    DetectionPage = 1;
+  }
+  if (performance.navigation.type === 2) {
+    DetectionPage = 2;
+  }
+
+  document.getElementById('message-input').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+
+      const message = event.target.value;
+
+      messageList.innerHTML += message;
+
+      event.target.value = '';
+
+      fetch('message/send?message=' + message, {
+        method: 'GET'
+      })
+              .then((response) => response.json())
+              .then((data) => {
+                // messageList.innerHTML += `\n\nOpenAi:\n${data.data}\n\n`;
+                const message = "\n" + "OpenAi:  " + data.data + "\n\n";
+                let i = 0;
+                const intervalId = setInterval(() => {
+                  if (i < message.length) {
+                    if (message[i] === '\n') {
+                      messageList.innerHTML += '\n';
+                    } else {
+                      messageList.innerHTML += message[i];
+                    }
+                    i++;
+                  } else {
+                    clearInterval(intervalId);
+                  }
+                }, 100);
+              });
+    }
+  });
+
+
+  $(document).ready(function () {
+
+    // 发送 GET 请求到后端接口 /getNumber
+    $.ajax({
+      type: "GET",
+      url: "/message/reduce",
+      success: function (number) {
+        // 在页面上的 #numberContainer 元素中显示获取到的数字
+        $("#number").text(number);
+      }
+    });
+
+
+    $.ajax({
+      type: "GET",
+      url: "/message/login?DetectionPage=" + DetectionPage,
+      success: function (online) {
+        // 在页面上的 #numberContainer 元素中显示获取到的数字
+        $("#online").text(online);
+        globalMember = online;
+        if (globalMember >= 51) {
+          window.location = "wait.html";
+        }
+      }
+    });
+
+  });
+
+
+  var randomString = generateRandomString(20);
+
+  if (performance.navigation.type == 0) {
+    //获取现在的时间
+    var startingTime = new Date().getTime();
+    console.log("进入页面现在的时间：" + getTimeMin(startingTime) + "分" + getTimeSec(startingTime) + "秒");
+
+    //如果没有时间戳，说明是第一次打开页面
+    if (storedTimestamp == null) {
+      var username;
+
+      localStorage.setItem(username, randomString);
+
+      //给随机字符串设置时间戳
+      localStorage.setItem(username, startingTime + (15 * 60 * 1000));
+
+      //读取 Local Storage 中的时间戳
+      var storedTimestamp = localStorage.getItem(username);
+
+      console.log("进入页面，没有时间戳的情况下，设置的时间戳的时间" + getTimeMin(storedTimestamp) + "分" + getTimeSec(storedTimestamp) + "秒");
+    }
+
+    //如果现在的时间超过时间戳的时间，则再创建一个时间戳
+    if (startingTime > storedTimestamp) {
+      localStorage.setItem(username, startingTime + (15 * 60 * 1000));
+
+      //读取 Local Storage 中的时间戳
+      var storedTimestamp = localStorage.getItem(username);
+      console.log("进入页面，现在的时间 > 时间戳的时间的情况下，时间戳的时间" + getTimeMin(storedTimestamp) + "分" + getTimeSec(storedTimestamp) +
+              "秒");
+    }
+
+    //读取 Local Storage 中的时间戳
+    var storedTimestamp = localStorage.getItem(username);
+    console.log("进入页面，有时间戳的情况下，时间戳的时间" + getTimeMin(storedTimestamp) + "分" + getTimeSec(storedTimestamp) + "秒");
+
+    localStorage.setItem(username, storedTimestamp.replace(/"/g, ''));
+  }
+
+
+  // 获取数据
+  var data = localStorage.getItem(username);
+
+  //刷新页面的情况下
+  if (performance.navigation.type == 1) {
+
+    //获取现在的时间
+    var startingTime = new Date().getTime();
+    console.log("刷新页面，现在的时间：" + getTimeMin(startingTime) + "分" + getTimeSec(startingTime) + "秒");
+
+    //如果现在的时间超过时间戳的时间，则再创建一个时间戳
+    if (startingTime > data) {
+      localStorage.setItem(username, startingTime + (15 * 60 * 1000));
+      //读取 Local Storage 中的时间戳
+      var storedTimestamp = localStorage.getItem(username);
+      console.log("刷新页面，现在的时间 > 时间戳的时间的情况下，时间戳的时间" + getTimeMin(storedTimestamp) + "分" + getTimeSec(storedTimestamp) +
+              "秒");
+    }
+
+    var storedTimestamp = data;
+    console.log("刷新页面，时间戳的时间" + getTimeMin(storedTimestamp) + "分" + getTimeSec(storedTimestamp) + "秒");
+  }
+
+
+  //更新倒计时的显示
+  var x = setInterval(function () {
+    // 获取当前时间
+    var now = new Date().getTime();
+
+    // 计算时间差（毫秒）
+    var distance = storedTimestamp - now;
+
+    // 计算剩余分钟数和秒数
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    document.getElementById("countdown").innerHTML = minutes + "m " + seconds + "s ";
+
+    //过期
+    if (minutes <= 0 && seconds <= 0) {
+      window.location = "overtime.html";
+    }
+  }, 1000);
+
+
+  function generateRandomString(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  }
+
+
+  function getTimeMin(length) {
+    var distance = length;
+    // 计算剩余分钟数和秒数
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    return minutes;
+  }
+
+
+  function getTimeSec(length) {
+    var distance = length;
+    // 计算剩余分钟数和秒数
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    return seconds;
+  }
+
+  //设置在textarea中回车不换行
+  const myTextarea = document.getElementById("message-input");
+
+  myTextarea.addEventListener("keydown", function (e) {
+    if (e.keyCode === 13 && myTextarea.value.trim() === "") {
+      e.preventDefault();
+      this.value = this.value.replace(/\n/g, ''); // 去除换行符
+      this.scrollTop = 0; // 滚动到顶部
+    }
+  });
+</script>
+
+</html>
