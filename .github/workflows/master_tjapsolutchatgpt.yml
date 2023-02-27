@@ -49,5 +49,5 @@ jobs:
         with:
           app-name: 'TJApsolutChatGPT'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1EBFA1715B884886A00082E077CEE1EE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B30EBD9A049641688F82BADCC6FD5B45 }}
           package: '*.jar'
