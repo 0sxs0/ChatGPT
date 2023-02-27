@@ -2,9 +2,9 @@ package com.example.chatgpt.controller;
 
 import com.example.chatgpt.dto.ResponseModel;
 import com.example.chatgpt.interceptor.UserLimiter;
+import com.example.chatgpt.service.ChatgptService;
 import com.example.chatgpt.service.UserService;
 import com.example.chatgpt.util.SensitiveFilter;
-import io.github.flashvayne.chatgpt.service.ChatgptService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

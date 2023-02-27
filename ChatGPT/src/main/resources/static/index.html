@@ -38,6 +38,7 @@
     /* 手机端样式 */
     @media screen and (max-width: 767px) {
       textarea#message-input, textarea#message-list {
+        resize: none;
         white-space: pre-wrap;
         width: 100%;
         padding: 10px;
@@ -80,7 +81,7 @@
     </p>
   </div>
 
-  <textarea id="message-input" placeholder="请在此输入对话" rows="4"></textarea>
+  <textarea id="message-input" placeholder="请在此输入对话" rows="4"></textarea><br>
 
   <textarea id="message-list" placeholder="ChatGPT最近很拥堵，若长时间没回复，可多点几次回答按钮。若始终没有回复，说明站长账号里没钱了..." rows="20" disabled></textarea>
 
